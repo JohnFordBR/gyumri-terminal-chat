@@ -15,8 +15,8 @@ const screen = blessed.screen({
 
 
 
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
-  return process.exit(0);
+screen.key(['escape', 'q', 'C-c'], (ch, key)=> {
+  return process.exit();
 });
 
 
@@ -65,17 +65,11 @@ sock.write('server is down');
 
 }else{
 
-  const log = contrib.log(
-        { fg: "green"
-        , label: 'Chat window'
-        , height: "20%"
-        , tags: true
-        , border: {type: "line", fg: "cyan"} });
-  screen.append(log);
+
 
   const chatlog = contrib.log(
         { fg: "green"
-        , top: '25%'
+        , top: '20%'
         , label: 'messages'
         , height: "40%"
         , tags: true
@@ -85,17 +79,14 @@ sock.write('server is down');
   socket.connect(parsedArguments.port, parsedArguments.location, () => {
       //Send message to socket server
 
-
-
   const form = blessed.form({
-      parent: log,
-      name: 'form',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
+    fg: "green"
+    , label: 'Chat window'
+    , height: "20%"
+    , tags: true
+    , border: {type: "line", fg: "cyan"}
   });
-
+  screen.append(form);
   const input = blessed.textarea({
       parent: form,
       name: 'input',
@@ -110,6 +101,37 @@ sock.write('server is down');
           fg: 'white',
           bg: 'black',
           focus: {
+            bg: 'red',
+            fg: 'white'
+          }
+      }
+  });
+
+
+  const nicknameform = blessed.form({
+    top:'70%'
+    ,fg: "green"
+    ,width: '30%'
+    , label: 'Write your nickname'
+    , height: "20%"
+    , tags: true
+    , border: {type: "line", fg: "cyan"}
+  });
+  screen.append(nicknameform);
+  const nicknameinput = blessed.textarea({
+      parent: nicknameform,
+      name: 'nicknameinput',
+      inputOnFocus: true,
+      input: true,
+      keys: true,
+      top: 0,
+      left: 0,
+      height: 1,
+      width: '95%',
+      style: {
+          fg: 'white',
+          bg: 'black',
+          focus: {
               bg: 'red',
               fg: 'white'
           }
@@ -117,7 +139,21 @@ sock.write('server is down');
   });
 
   input.focus();
-  input.key('enter', function() {
+
+  input.on('click', ()=>{
+
+  input.focus();
+
+  });
+
+nicknameinput.on('click', ()=>{
+
+nicknameinput.focus();
+
+});
+
+
+  input.key('enter',()=>{
   socket.write(input.getValue());
   input.clearValue();
   });
