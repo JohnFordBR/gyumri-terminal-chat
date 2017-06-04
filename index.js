@@ -15,8 +15,8 @@ const screen = blessed.screen({
 
 
 
-screen.key(['escape', 'q', 'C-c'], (ch, key)=> {
-  return process.exit();
+screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+  return process.exit(0);
 });
 
 
@@ -65,11 +65,17 @@ sock.write('server is down');
 
 }else{
 
-
+  const log = contrib.log(
+        { fg: "green"
+        , label: 'Chat window'
+        , height: "20%"
+        , tags: true
+        , border: {type: "line", fg: "cyan"} });
+  screen.append(log);
 
   const chatlog = contrib.log(
         { fg: "green"
-        , top: '20%'
+        , top: '25%'
         , label: 'messages'
         , height: "40%"
         , tags: true
@@ -79,14 +85,17 @@ sock.write('server is down');
   socket.connect(parsedArguments.port, parsedArguments.location, () => {
       //Send message to socket server
 
+
+
   const form = blessed.form({
-    fg: "green"
-    , label: 'Chat window'
-    , height: "20%"
-    , tags: true
-    , border: {type: "line", fg: "cyan"}
+      parent: log,
+      name: 'form',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
   });
-  screen.append(form);
+
   const input = blessed.textarea({
       parent: form,
       name: 'input',
@@ -101,59 +110,32 @@ sock.write('server is down');
           fg: 'white',
           bg: 'black',
           focus: {
-            bg: 'red',
-            fg: 'white'
-          }
-      }
-  });
-
-
-  const nicknameform = blessed.form({
-    top:'70%'
-    ,fg: "green"
-    ,width: '30%'
-    , label: 'Write your nickname'
-    , height: "20%"
-    , tags: true
-    , border: {type: "line", fg: "cyan"}
-  });
-  screen.append(nicknameform);
-  const nicknameinput = blessed.textarea({
-      parent: nicknameform,
-      name: 'nicknameinput',
-      inputOnFocus: true,
-      input: true,
-      keys: true,
-      top: 0,
-      left: 0,
-      height: 1,
-      width: '95%',
-      style: {
-          fg: 'white',
-          bg: 'black',
-          focus: {
               bg: 'red',
               fg: 'white'
           }
       }
   });
 
-  input.focus();
 
-  input.on('click', ()=>{
-
-  input.focus();
-
+  const prompt = blessed.Prompt({
+    name: 'prompt',
+    top:'70%',
+    inputOnFocus: true,
+    input: true,
+    keys: true
   });
+const  nickname = '';
+  screen.append(prompt);
+prompt.focus();
+prompt.input('nickname','',(nickname)=>{
+    //  the most  difficult part
+    //TODO: get  the  input  value  and put it in nickname variable
+input.focus();
+ });
 
-nicknameinput.on('click', ()=>{
-
-nicknameinput.focus();
-
-});
 
 
-  input.key('enter',()=>{
+  input.key('enter', function() {
   socket.write(input.getValue());
   input.clearValue();
   });
